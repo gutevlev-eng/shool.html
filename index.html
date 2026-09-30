@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Паскаль — презентация Льва Гутева</title>
+
+<style>
+:root {
+  --bg:#050608;
+  --text:#f4f6fb;
+  --muted:#a1a7b5;
+  --accent:#76e8ff;
+  --violet:#a995ff;
+  --line:rgba(255,255,255,.12);
+}
+* { box-sizing:border-box; }
+html,body { margin:0; width:100%; height:100%; }
+body {
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  overflow:hidden;
+}
+button,input { font:inherit; }
+button { cursor:pointer; }
+button:focus-visible,input:focus-visible {
+  outline:2px solid var(--accent);
+  outline-offset:5px;
+}
+#stars {
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  opacity:.55;
+}
+.ambient {
+  position:fixed;
+  width:70vw;
+  height:70vw;
+  top:-45vw;
+  right:-20vw;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(118,232,255,.12),transparent 65%);
+  pointer-events:none;
+}
+.header {
+  position:fixed;
+  z-index:5;
+  top:25px;
+  left:5vw;
+  right:5vw;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+}
+.brand {
+  font-size:12px;
+  letter-spacing:4px;
+  font-weight:700;
+}
+.author { color:var(--muted); font-size:13px; }
+main { position:relative; width:100%; height:100%; }
+.slide {
+  position:absolute;
+  inset:0;
+  padding:90px 8vw 115px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  visibility:hidden;
+  opacity:0;
+  transform:translateY(25px) scale(.985);
+  transition:opacity .5s,transform .5s,visibility .5s;
+  pointer-events:none;
+  overflow-y:auto;
+}
+.slide.active {
+  visibility:visible;
+  opacity:1;
+  transform:none;
+  pointer-events:auto;
+}
+.content { width:100%; max-width:1180px; margin:auto; }
+.eyebrow {
+  display:block;
+  color:var(--accent);
+  font-size:12px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  margin-bottom:18px;
+}
+h1,h2,h3,p { margin-top:0; }
+h1 {
+  font-size:clamp(64px,11vw,154px);
+  line-height:.95;
+  letter-spacing:-.065em;
+  margin-bottom:25px;
+}
+h2 {
+  font-size:clamp(30px,4.8vw,66px);
+  line-height:1.08;
+  letter-spacing:-.045em;
+  margin-bottom:25px;
+}
+h3 { font-size:21px; margin-bottom:12px; }
+p {
+  color:var(--muted);
+  font-size:clamp(16px,1.5vw,21px);
+  line-height:1.6;
+  margin-bottom:18px;
+}
+strong { color:var(--text); }
+.accent { color:var(--accent); }
+.gradient {
+  background:linear-gradient(110deg,#fff 15%,var(--accent) 60%,var(--violet));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.lead { max-width:760px; }
+.signature {
+  display:inline-flex;
+  gap:15px;
+  align-items:center;
+  margin-top:18px;
+  padding:15px 22px;
+  border:1px solid var(--line);
+  border-radius:100px;
+  background:rgba(255,255,255,.03);
+}
+.signature span { color:var(--muted); }
+.grid { display:grid; gap:18px; }
+.two { grid-template-columns:1fr 1fr; }
+.three { grid-template-columns:repeat(3,1fr); }
+.card {
+  padding:25px;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:linear-gradient(140deg,rgba(255,255,255,.05),rgba(255,255,255,.015));
+}
+.card p:last-child { margin-bottom:0; }
+.number {
+  color:var(--accent);
+  font-size:12px;
+  letter-spacing:2px;
+  margin-bottom:18px;
+}
+.formula {
+  font-size:clamp(35px,5vw,70px);
+  font-weight:700;
+  color:var(--accent);
+  letter-spacing:-2px;
+  margin:20px 0;
+}
+.formula.small { font-size:clamp(26px,3vw,42px); }
+.fraction {
+  display:inline-flex;
+  flex-direction:column;
+  vertical-align:middle;
+  text-align:center;
+  line-height:1.15;
+  margin:0 7px;
+}
+.fraction > span:first-child {
+  border-bottom:2px solid currentColor;
+  padding:0 10px 6px;
+}
+.fraction > span:last-child { padding-top:6px; }
+.note {
+  border-left:3px solid var(--accent);
+  padding:10px 0 10px 20px;
+  color:var(--muted);
+  line-height:1.55;
+  font-size:17px;
+  margin-top:24px;
+}
+.stat { font-size:clamp(30px,4vw,55px); font-weight:700; }
+.units {
+  width:100%;
+  border-collapse:collapse;
+  font-size:clamp(15px,1.6vw,20px);
+}
+.units td { padding:14px 10px; border-bottom:1px solid var(--line); }
+.units td:last-child { color:var(--accent); text-align:right; }
+.list { display:grid; gap:15px; }
+.list-item {
+  display:flex;
+  gap:16px;
+  align-items:flex-start;
+  border-bottom:1px solid var(--line);
+  padding-bottom:15px;
+}
+.list-item span { color:var(--accent); font-weight:bold; }
+.list-item p { margin:0; }
+.pressure-demo {
+  position:relative;
+  height:260px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.water-orb {
+  width:150px;
+  height:150px;
+  border-radius:50%;
+  border:1px solid rgba(118,232,255,.6);
+  background:radial-gradient(circle,rgba(118,232,255,.2),rgba(118,232,255,.02));
+  box-shadow:0 0 55px rgba(118,232,255,.13);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:var(--accent);
+  font-size:32px;
+  font-weight:bold;
+}
+.arrow {
+  position:absolute;
+  left:50%;
+  top:50%;
+  font-size:32px;
+  color:var(--accent);
+  animation:pressurePulse 2s infinite;
+}
+.a1 { transform:translate(-50%,-145px); }
+.a2 { transform:translate(108px,-50%); }
+.a3 { transform:translate(-50%,100px); }
+.a4 { transform:translate(-135px,-50%); }
+@keyframes pressurePulse {
+  0%,100% { opacity:.4; }
+  50% { opacity:1; text-shadow:0 0 20px var(--accent); }
+}
+.hydraulic {
+  position:relative;
+  height:190px;
+  margin:10px 0 22px;
+}
+.pipe {
+  position:absolute;
+  bottom:14px;
+  left:15%;
+  right:15%;
+  height:25px;
+  border:2px solid var(--accent);
+  border-top:0;
+  background:rgba(118,232,255,.13);
+}
+.cylinder {
+  position:absolute;
+  bottom:37px;
+  height:110px;
+  border:2px solid var(--accent);
+  border-top:0;
+  background:linear-gradient(transparent,rgba(118,232,255,.22));
+}
+.cylinder.small { width:60px; left:calc(15% - 18px); }
+.cylinder.large { width:145px; right:calc(15% - 55px); }
+.piston {
+  position:absolute;
+  left:-7px;
+  right:-7px;
+  top:22px;
+  height:11px;
+  border-radius:4px;
+  background:#e7faff;
+  box-shadow:0 0 18px rgba(118,232,255,.3);
+  transition:transform .2s;
+}
+.piston::before {
+  content:"";
+  position:absolute;
+  width:9px;
+  height:45px;
+  background:#e7faff;
+  bottom:8px;
+  left:calc(50% - 4px);
+}
+.force-label {
+  position:absolute;
+  top:0;
+  color:var(--accent);
+  font-size:16px;
+}
+.force-label.left { left:8%; }
+.force-label.right { right:4%; }
+input[type=range] { width:100%; accent-color:var(--accent); }
+.range-row {
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  color:var(--muted);
+  font-size:14px;
+  margin-bottom:10px;
+}
+.depth {
+  height:250px;
+  position:relative;
+  border-radius:18px;
+  overflow:hidden;
+  background:linear-gradient(#10333e,#07101e);
+  border:1px solid var(--line);
+  margin-bottom:16px;
+}
+.surface {
+  position:absolute;
+  top:24px;
+  width:100%;
+  border-top:2px solid var(--accent);
+  box-shadow:0 0 18px var(--accent);
+}
+.depth-mark {
+  position:absolute;
+  left:25px;
+  top:45px;
+  bottom:25px;
+  border-left:1px dashed rgba(255,255,255,.5);
+}
+.depth-mark span {
+  position:absolute;
+  top:45%;
+  left:15px;
+  color:#fff;
+}
+.bubble {
+  position:absolute;
+  bottom:-25px;
+  width:10px;
+  height:10px;
+  border:1px solid #76e8ff88;
+  border-radius:50%;
+  animation:rise 6s linear infinite;
+}
+@keyframes rise {
+  to { transform:translateY(-290px); opacity:0; }
+}
+.footer {
+  position:fixed;
+  z-index:5;
+  left:5vw;
+  right:5vw;
+  bottom:25px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+}
+.counter { font-size:14px; color:var(--muted); min-width:65px; }
+.counter strong { color:#fff; font-size:23px; }
+.dots { display:flex; gap:9px; }
+.dot {
+  width:8px;
+  height:8px;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:#3b3f48;
+  transition:.3s;
+}
+.dot.active { width:25px; border-radius:6px; background:var(--accent); }
+.controls { display:flex; gap:9px; }
+.control {
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.04);
+  color:white;
+  border-radius:12px;
+  padding:11px 17px;
+  transition:.2s;
+}
+.control:hover { border-color:var(--accent); background:rgba(118,232,255,.1); }
+.control:disabled { opacity:.3; cursor:default; }
+#progress {
+  position:fixed;
+  bottom:0;
+  left:0;
+  height:3px;
+  background:linear-gradient(90deg,var(--accent),var(--violet));
+  transition:width .5s;
+  box-shadow:0 0 15px var(--accent);
+  z-index:6;
+}
+.hint { color:var(--muted); font-size:13px; margin-top:25px; }
+.end-title { font-size:clamp(45px,7vw,95px); }
+@media (max-width:760px) {
+  .header { top:18px; }
+  .brand { font-size:10px; letter-spacing:2px; }
+  .author { font-size:11px; }
+  .slide { padding:75px 6vw 100px; justify-content:flex-start; }
+  .content { margin:auto; }
+  .two,.three { grid-template-columns:1fr; }
+  .card { padding:18px; }
+  h2 { margin-bottom:18px; }
+  p { font-size:16px; }
+  .formula { margin:12px 0; }
+  .note { font-size:15px; margin-top:16px; }
+  .footer { bottom:18px; gap:10px; }
+  .dots { gap:5px; }
+  .dot { width:6px; height:6px; }
+  .dot.active { width:15px; }
+  .control { padding:9px 12px; }
+  .pressure-demo { height:225px; }
+  .units td { padding:11px 5px; }
+  .signature { flex-wrap:wrap; border-radius:18px; }
+  .hint { font-size:12px; }
+}
+@media (max-height:650px) and (min-width:761px) {
+  .slide { padding-top:65px; padding-bottom:85px; }
+  h2 { font-size:38px; margin-bottom:15px; }
+  h1 { font-size:90px; }
+  .card { padding:18px; }
+  p { font-size:16px; }
+  .formula { font-size:43px; margin:12px 0; }
+  .pressure-demo,.depth { height:195px; }
+  .note { margin-top:12px; font-size:15px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after {
+    animation:none !important;
+    transition:none !important;
+  }
+}
+</style>
+</head>
+
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<div class="ambient"></div>
+
+<header class="header">
+  <div class="brand">ФИЗИКА / PASCAL</div>
+  <div class="author">Презентация · Лев Гутев</div>
+</header>
+
+<main>
+
+<section class="slide active" aria-label="Титульный слайд">
+  <div class="content">
+    <span class="eyebrow">Давление · Жидкости · Открытия</span>
+    <h1 class="gradient">ПАСКАЛЬ</h1>
+    <p class="lead">
+      Как маленькая сила поднимает большой груз?<br>
+      Единица давления, закон Паскаля и физика вокруг нас.
+    </p>
+    <div class="signature">
+      <span>Подготовил</span>
+      <strong>Лев Гутев</strong>
+    </div>
+    <div class="hint">Листай стрелками ← → · Полный экран — F</div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Блез Паскаль">
+  <div class="content">
+    <span class="eyebrow">01 / Учёный</span>
+    <h2>Человек, чьим именем<br>назвали <span class="accent">давление.</span></h2>
+    <div class="grid two">
+      <div class="card">
+        <div class="number">БЛЕЗ ПАСКАЛЬ</div>
+        <div class="stat">1623–1662</div>
+        <p>Французский физик, математик, изобретатель и философ.</p>
+        <p>Исследовал <strong>давление жидкостей, атмосферное давление и вакуум.</strong></p>
+      </div>
+      <div class="card">
+        <h3>Эксперимент на горе</h3>
+        <p>В 1648 году по предложению Паскаля провели опыты с ртутным барометром на горе Пюи-де-Дом.</p>
+        <p><strong>Результат:</strong> с увеличением высоты атмосферное давление уменьшается.</p>
+        <p>Также Паскаль создал счётную машину — <span class="accent">«Паскалину».</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Определение давления">
+  <div class="content">
+    <span class="eyebrow">02 / Основная величина</span>
+    <h2>Что такое <span class="accent">давление?</span></h2>
+    <div class="grid two">
+      <div class="card">
+        <p>Сила, действующая перпендикулярно поверхности, в расчёте на единицу площади.</p>
+        <div class="formula">
+          p = <span class="fraction"><span>F</span><span>S</span></span>
+        </div>
+        <p><strong>p</strong> — давление, Па<br>
+        <strong>F</strong> — сила давления, Н<br>
+        <strong>S</strong> — площадь, м²</p>
+      </div>
+      <div class="card">
+        <h3>Один паскаль</h3>
+        <div class="formula small">1 Па = 1 Н/м²</div>
+        <p>Сила <strong>1 ньютон</strong>, равномерно распределённая по площади <strong>1 м²</strong>, создаёт давление 1 Па.</p>
+        <div class="note">Пример: 100 Н ÷ 2 м² = <strong>50 Па</strong>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Давление в повседневной жизни">
+  <div class="content">
+    <span class="eyebrow">03 / Физика рядом</span>
+    <h2>Меньше площадь —<br><span class="accent">больше давление.</span></h2>
+    <div class="grid three">
+      <div class="card">
+        <div class="number">01 / НОЖ</div>
+        <h3>Острое лезвие</h3>
+        <p>Маленькая площадь контакта создаёт большое давление. Поэтому острый нож режет легче.</p>
+      </div>
+      <div class="card">
+        <div class="number">02 / ЛЫЖИ</div>
+        <h3>Широкая опора</h3>
+        <p>Лыжи увеличивают площадь опоры. Давление на снег уменьшается — человек меньше проваливается.</p>
+      </div>
+      <div class="card">
+        <div class="number">03 / ОБУВЬ</div>
+        <h3>Каблук-шпилька</h3>
+        <p>При одинаковой нагрузке маленький каблук давит на пол сильнее широкой подошвы.</p>
+      </div>
+    </div>
+    <div class="note">
+      При неизменной площади: <strong>больше сила → больше давление.</strong><br>
+      При неизменной силе: <strong>больше площадь → меньше давление.</strong>
+    </div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Единицы давления">
+  <div class="content">
+    <span class="eyebrow">04 / Единицы измерения</span>
+    <h2>От паскаля<br>до <span class="accent">атмосферы.</span></h2>
+    <div class="grid two">
+      <div class="card">
+        <table class="units" aria-label="Перевод единиц давления">
+          <tbody>
+            <tr><td>1 гПа</td><td>100 Па</td></tr>
+            <tr><td>1 кПа</td><td>1 000 Па</td></tr>
+            <tr><td>1 МПа</td><td>1 000 000 Па</td></tr>
+            <tr><td>1 бар</td><td>100 000 Па</td></tr>
+            <tr><td>1 атм</td><td>101 325 Па</td></tr>
+            <tr><td>1 мм рт. ст.</td><td>≈ 133,322 Па</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>Нормальное атмосферное давление</h3>
+        <div class="formula small">101 325 Па</div>
+        <p>= 101,325 кПа<br>= 760 мм рт. ст.</p>
+        <div class="note">
+          В задачах площадь переводим в м²:<br>
+          <strong>1 см² = 0,0001 м²</strong><br>
+          <strong>20 см² = 0,002 м²</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Закон Паскаля">
+  <div class="content">
+    <span class="eyebrow">05 / Главный закон</span>
+    <h2>Давление передаётся<br><span class="accent">во все стороны.</span></h2>
+    <div class="grid two">
+      <div class="card">
+        <h3>Закон Паскаля</h3>
+        <p><strong>Давление, производимое на жидкость или газ, передаётся без изменения во все стороны.</strong></p>
+        <p>В замкнутой системе добавочное давление передаётся всем точкам покоящейся среды и стенкам сосуда.</p>
+        <p>Например, при нажатии на поршень закрытого шприца давление увеличивается во всей воде.</p>
+      </div>
+      <div class="card">
+        <div class="pressure-demo" aria-label="Схема передачи давления во все стороны">
+          <div class="water-orb">Δp</div>
+          <span class="arrow a1">↑</span>
+          <span class="arrow a2">→</span>
+          <span class="arrow a3">↓</span>
+          <span class="arrow a4">←</span>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      Одинаково передаётся <strong>добавка давления</strong>.
+      Само давление может различаться на разных глубинах.
+    </div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Гидравлический пресс">
+  <div class="content">
+    <span class="eyebrow">06 / Интерактивная схема</span>
+    <h2>Малая сила.<br><span class="accent">Большой результат.</span></h2>
+    <div class="grid two">
+      <div class="card">
+        <h3>Гидравлический пресс</h3>
+        <div class="formula small">
+          <span class="fraction"><span>F₁</span><span>S₁</span></span>
+          =
+          <span class="fraction"><span>F₂</span><span>S₂</span></span>
+        </div>
+        <p>Два поршня связаны жидкостью. На одинаковой высоте в идеальной системе их давления равны.</p>
+        <p>Площади: <strong>S₁ = 2 см²</strong>, <strong>S₂ = 100 см²</strong>.</p>
+        <div class="note">Большой поршень даёт <strong>выигрыш в силе в 50 раз.</strong></div>
+      </div>
+      <div class="card">
+        <div class="hydraulic" aria-label="Условная схема гидравлического пресса">
+          <div class="force-label left">F₁ = <span id="forceSmall">50</span> Н ↓</div>
+          <div class="force-label right">F₂ = <span id="forceLarge">2500</span> Н ↑</div>
+          <div class="pipe"></div>
+          <div class="cylinder small"><div class="piston" id="pistonSmall"></div></div>
+          <div class="cylinder large"><div class="piston" id="pistonLarge"></div></div>
+        </div>
+        <label class="range-row" for="force">
+          <span>Измени силу на малом поршне</span>
+          <strong id="forceValue">50 Н</strong>
+        </label>
+        <input id="force" type="range" min="10" max="100" value="50" step="1">
+        <p style="font-size:13px;margin:12px 0 0">
+          Схема условная: положение поршней иллюстрирует работу устройства, а не рассчитывает ход.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Энергия и применение гидравлики">
+  <div class="content">
+    <span class="eyebrow">07 / Сила и энергия</span>
+    <h2>Выигрыш в силе —<br><span class="accent">не выигрыш в энергии.</span></h2>
+    <div class="grid two">
+      <div class="card">
+        <h3>Золотое правило механики</h3>
+        <p>Большой поршень движется на меньшее расстояние.</p>
+        <div class="formula small">S₁h₁ = S₂h₂</div>
+        <div class="formula small">F₁h₁ = F₂h₂</div>
+        <p>В идеальном устройстве работа сохраняется. В реальном часть энергии теряется из-за трения и других факторов.</p>
+      </div>
+      <div class="card">
+        <h3>Где это работает?</h3>
+        <div class="list">
+          <div class="list-item"><span>01</span><p>Гидравлические домкраты и подъёмники</p></div>
+          <div class="list-item"><span>02</span><p>Гидравлические тормоза автомобилей</p></div>
+          <div class="list-item"><span>03</span><p>Промышленные прессы</p></div>
+          <div class="list-item"><span>04</span><p>Гидросистемы экскаваторов</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Давление на глубине">
+  <div class="content">
+    <span class="eyebrow">08 / Под водой</span>
+    <h2>Чем глубже —<br><span class="accent">тем выше давление.</span></h2>
+    <div class="grid two">
+      <div class="card">
+        <div class="formula">p = ρgh</div>
+        <p><strong>ρ</strong> — плотность жидкости, кг/м³<br>
+        <strong>g ≈ 9,8 м/с²</strong><br>
+        <strong>h</strong> — глубина, м</p>
+        <p>Полное давление с учётом давления на поверхности:</p>
+        <div class="formula small">p = p₀ + ρgh</div>
+      </div>
+      <div class="card">
+        <div class="depth" aria-label="Иллюстрация глубины 2 метра">
+          <div class="surface"></div>
+          <div class="depth-mark"><span>h = 2 м</span></div>
+          <div class="bubble" style="left:40%;animation-delay:-1s"></div>
+          <div class="bubble" style="left:60%;animation-delay:-3s;width:15px;height:15px"></div>
+          <div class="bubble" style="left:82%;animation-delay:-4s"></div>
+        </div>
+        <p>В воде на глубине 2 м:</p>
+        <h3 class="accent">1000 × 9,8 × 2 = 19 600 Па</h3>
+        <p style="font-size:15px;margin:0">Это давление столба воды сверх давления на поверхности.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Итоги презентации">
+  <div class="content">
+    <span class="eyebrow">09 / Главное</span>
+    <h2>Три идеи,<br>которые стоит <span class="accent">запомнить.</span></h2>
+    <div class="grid three">
+      <div class="card">
+        <div class="number">ДАВЛЕНИЕ</div>
+        <div class="formula small">p = F/S</div>
+        <p>Измеряется в паскалях.<br><strong>1 Па = 1 Н/м².</strong></p>
+      </div>
+      <div class="card">
+        <div class="number">ЗАКОН ПАСКАЛЯ</div>
+        <h3>Во все стороны</h3>
+        <p>Добавочное давление передаётся без изменения в покоящейся жидкости или газе.</p>
+      </div>
+      <div class="card">
+        <div class="number">ГИДРАВЛИКА</div>
+        <h3>Сила, не энергия</h3>
+        <p>Выигрыш в силе сопровождается проигрышем в расстоянии.</p>
+      </div>
+    </div>
+    <div class="note">
+      Не путай: <strong>сила — в ньютонах</strong>, <strong>давление — в паскалях</strong>.
+      На глубине учитывай вес жидкости.
+    </div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Спасибо за внимание">
+  <div class="content">
+    <span class="eyebrow">Физика объясняет мир</span>
+    <h2 class="end-title">Спасибо<br>за <span class="gradient">внимание.</span></h2>
+    <p class="lead">Паскаль — это не только единица измерения.<br>
+    Это ключ к пониманию давления и работы гидравлики.</p>
+    <div class="signature">
+      <span>Автор презентации</span>
+      <strong>Лев Гутев</strong>
+    </div>
+    <div class="hint">Вопрос: почему гидравлический пресс не создаёт дополнительную энергию?</div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="counter"><strong id="current">01</strong> / <span id="total">11</span></div>
+  <nav class="dots" id="dots" aria-label="Выбор слайда"></nav>
+  <div class="controls">
+    <button class="control" id="fullscreen" aria-label="Полноэкранный режим" title="Полный экран — F">⛶</button>
+    <button class="control" id="prev" aria-label="Предыдущий слайд">←</button>
+    <button class="control" id="next" aria-label="Следующий слайд">→</button>
+  </div>
+</footer>
+<div id="progress"></div>
+<div id="announcement" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)"></div>
+
+<script>
+const slides = [...document.querySelectorAll('.slide')];
+const dotsContainer = document.getElementById('dots');
+const currentLabel = document.getElementById('current');
+const totalLabel = document.getElementById('total');
+const progress = document.getElementById('progress');
+const prev = document.getElementById('prev');
+const next = document.getElementById('next');
+const announcement = document.getElementById('announcement');
+let index = 0;
+
+totalLabel.textContent = String(slides.length).padStart(2,'0');
+
+const dots = slides.map((slide,i) => {
+  const button = document.createElement('button');
+  button.className = 'dot';
+  button.setAttribute('aria-label',`Слайд ${i+1}: ${slide.getAttribute('aria-label')}`);
+  button.addEventListener('click',() => showSlide(i));
+  dotsContainer.appendChild(button);
+  return button;
+});
+
+function showSlide(target) {
+  index = Math.max(0,Math.min(slides.length-1,target));
+  slides.forEach((slide,i) => {
+    const active = i === index;
+    slide.classList.toggle('active',active);
+    slide.setAttribute('aria-hidden',String(!active));
+    slide.inert = !active;
+    if (active) slide.scrollTop = 0;
+  });
+  dots.forEach((dot,i) => {
+    dot.classList.toggle('active',i === index);
+    if (i === index) dot.setAttribute('aria-current','step');
+    else dot.removeAttribute('aria-current');
+  });
+  currentLabel.textContent = String(index+1).padStart(2,'0');
+  progress.style.width = `${(index+1)/slides.length*100}%`;
+  prev.disabled = index === 0;
+  next.disabled = index === slides.length-1;
+  announcement.textContent = `Слайд ${index+1} из ${slides.length}. ${slides[index].getAttribute('aria-label')}`;
+}
+
+prev.addEventListener('click',() => showSlide(index-1));
+next.addEventListener('click',() => showSlide(index+1));
+
+async function toggleFullscreen() {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else if (document.documentElement.requestFullscreen) {
+      await document.documentElement.requestFullscreen();
+    }
+  } catch (error) {
+    announcement.textContent = 'Браузер не разрешил полноэкранный режим.';
+  }
+}
+document.getElementById('fullscreen').addEventListener('click',toggleFullscreen);
+
+document.addEventListener('keydown',event => {
+  if (event.ctrlKey || event.altKey || event.metaKey) return;
+  const tag = event.target.tagName;
+  if (['INPUT','TEXTAREA','SELECT'].includes(tag) || event.target.isContentEditable) return;
+
+  if (['ArrowRight','PageDown'].includes(event.key)) {
+    event.preventDefault();
+    showSlide(index+1);
+  }
+  if (['ArrowLeft','PageUp'].includes(event.key)) {
+    event.preventDefault();
+    showSlide(index-1);
+  }
+  if (event.key === ' ' && tag !== 'BUTTON') {
+    event.preventDefault();
+    showSlide(index+1);
+  }
+  if (event.key === 'Home') { event.preventDefault(); showSlide(0); }
+  if (event.key === 'End') { event.preventDefault(); showSlide(slides.length-1); }
+  if (event.key.toLowerCase() === 'f' || event.key.toLowerCase() === 'а') {
+    toggleFullscreen();
+  }
+});
+
+let touchStart = null;
+document.querySelector('main').addEventListener('touchstart',event => {
+  if (event.target.closest('input,button')) {
+    touchStart = null;
+    return;
+  }
+  if (event.touches.length !== 1) return;
+  touchStart = {x:event.touches[0].clientX,y:event.touches[0].clientY};
+},{passive:true});
+
+document.querySelector('main').addEventListener('touchend',event => {
+  if (!touchStart) return;
+  const touch = event.changedTouches[0];
+  const dx = touch.clientX-touchStart.x;
+  const dy = touch.clientY-touchStart.y;
+  if (Math.abs(dx)>65 && Math.abs(dx)>Math.abs(dy)*1.5) {
+    showSlide(index+(dx<0 ? 1 : -1));
+  }
+  touchStart = null;
+},{passive:true});
+
+const force = document.getElementById('force');
+function updatePress() {
+  const value = Number(force.value);
+  document.getElementById('forceSmall').textContent = value;
+  document.getElementById('forceLarge').textContent = value*50;
+  document.getElementById('forceValue').textContent = `${value} Н`;
+  const fraction = (value-10)/90;
+  document.getElementById('pistonSmall').style.transform = `translateY(${fraction*45}px)`;
+  document.getElementById('pistonLarge').style.transform = `translateY(${-fraction*15}px)`;
+}
+force.addEventListener('input',updatePress);
+updatePress();
+showSlide(0);
+
+// Декоративный фон без внешних библиотек.
+const canvas = document.getElementById('stars');
+const ctx = canvas.getContext('2d');
+const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
+let width = 0;
+let height = 0;
+let particles = [];
+let frameId = null;
+let lastTime = 0;
+
+function resizeCanvas() {
+  const dpr = Math.min(window.devicePixelRatio || 1,2);
+  width = window.innerWidth;
+  height = window.innerHeight;
+  canvas.width = Math.round(width*dpr);
+  canvas.height = Math.round(height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  particles = Array.from({length:Math.min(65,Math.round(width/20))},() => ({
+    x:Math.random()*width,
+    y:Math.random()*height,
+    r:Math.random()*1.4+.4,
+    vx:(Math.random()-.5)*7,
+    vy:-(Math.random()*9+3),
+    phase:Math.random()*Math.PI*2
+  }));
+  drawBackground(performance.now());
+}
+
+function drawBackground(time) {
+  ctx.clearRect(0,0,width,height);
+  for (const p of particles) {
+    const alpha = motionPreference.matches ? .35 : .25+Math.sin(time*.0006+p.phase)*.15;
+    ctx.fillStyle = `rgba(155,215,235,${alpha})`;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fill();
+  }
+  ctx.strokeStyle = 'rgba(118,232,255,.025)';
+  ctx.lineWidth = 1;
+  for (let x=0;x<width;x+=100) {
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,height); ctx.stroke();
+  }
+  for (let y=0;y<height;y+=100) {
+    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(width,y); ctx.stroke();
+  }
+}
+
+function animate(time) {
+  frameId = null;
+  if (document.hidden || motionPreference.matches) return;
+  const dt = Math.min((time-lastTime)/1000,.05);
+  lastTime = time;
+  for (const p of particles) {
+    p.x += p.vx*dt;
+    p.y += p.vy*dt;
+    if (p.y < -5) p.y = height+5;
+    if (p.x < -5) p.x = width+5;
+    if (p.x > width+5) p.x = -5;
+  }
+  drawBackground(time);
+  frameId = requestAnimationFrame(animate);
+}
+
+function syncAnimation() {
+  if (frameId !== null) cancelAnimationFrame(frameId);
+  frameId = null;
+  drawBackground(performance.now());
+  if (!document.hidden && !motionPreference.matches) {
+    lastTime = performance.now();
+    frameId = requestAnimationFrame(animate);
+  }
+}
+
+window.addEventListener('resize',resizeCanvas);
+document.addEventListener('visibilitychange',syncAnimation);
+motionPreference.addEventListener('change',syncAnimation);
+resizeCanvas();
+syncAnimation();
+</script>
+</body>
+</html>
